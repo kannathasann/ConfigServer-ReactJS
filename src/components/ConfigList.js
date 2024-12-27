@@ -82,17 +82,24 @@ const ConfigList = ({ selectedFeature, setSelectedConfig }) => {
       <h2>Configs</h2>
       {selectedFeature ? (
         <>
-          {configs
-            .filter((config) => !selectedConfig || config.configName === selectedConfig.configName)
-            .map((config, index) => (
-              <div
-                key={config.id || index}
-                onClick={() => handleClick(config)}
-                style={{ cursor: "pointer", padding: "5px" }}
-              >
-                {config.configName} {/* Render the configName property */}
-              </div>
-            ))}
+         {configs.map((config, index) => (
+  <div
+    key={config.id || index}
+    onClick={() => handleClick(config)}
+    style={{
+      cursor: "pointer",
+      padding: "5px",
+      backgroundColor:
+        selectedConfig && selectedConfig.configName === config.configName
+          ? "#d3d3d3" // Highlight color for the selected config
+          : "transparent", // Default background for unselected configs
+      border: "1px solid #ccc", // Optional: Add a border for better visibility
+      marginBottom: "5px", // Optional: Add spacing between items
+    }}
+  >
+    {config.configName}
+  </div>
+))}
           <button onClick={toggleForm} style={{ marginTop: "10px" }}>
             {showForm ? "Cancel" : "Add Config"}
           </button>

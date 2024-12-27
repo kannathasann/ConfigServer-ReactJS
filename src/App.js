@@ -16,7 +16,7 @@ const App = () => {
       <Header />
       <div style={{ display: 'flex', flex: 1 }}>
         <AppList setSelectedApp={setSelectedApp} setSelectedFeature={setSelectedFeature} />
-        <FeatureList selectedApp={selectedApp} setSelectedFeature={setSelectedFeature} setSelectedConfig={setSelectedConfig} />
+        <FeatureList selectedApp={selectedApp}  selectedFeature={selectedFeature} setSelectedFeature={setSelectedFeature} setSelectedConfig={setSelectedConfig} />
         <ConfigList selectedFeature={selectedFeature} setSelectedConfig={setSelectedConfig} />
         <ReleaseList selectedConfig={selectedConfig} />
       </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const FeatureList = ({ selectedApp, setSelectedFeature }) => {
+const FeatureList = ({ selectedApp, selectedFeature, setSelectedFeature }) => {
   const [features, setFeatures] = useState([]);
 
   useEffect(() => {
@@ -25,7 +25,16 @@ const FeatureList = ({ selectedApp, setSelectedFeature }) => {
             <div
               key={feature.id}
               onClick={() => handleClick(feature)}
-              style={{ cursor: 'pointer', padding: '5px' }}
+              style={{
+                cursor: 'pointer',
+                padding: '5px',
+                backgroundColor:
+                  selectedFeature && selectedFeature.id === feature.id
+                    ? '#d3d3d3' // Highlight color for the selected feature
+                    : 'transparent', // Default background for unselected features
+                border: '1px solid #ccc', // Optional: Add a border for better visibility
+                marginBottom: '5px', // Optional: Add spacing between items
+              }}
             >
               {feature.name}
             </div>

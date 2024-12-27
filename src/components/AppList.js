@@ -24,7 +24,13 @@ const AppList = ({ setSelectedApp }) => {
           <div
             key={app.id}
             onClick={() => handleClick(app)}
-            style={{ cursor: 'pointer', padding: '5px' }}
+            style={{
+              cursor: 'pointer',
+              padding: '5px',
+              backgroundColor: selectedApp && selectedApp.id === app.id ? '#d3d3d3' : 'transparent', // Highlight the selected app
+              border: '1px solid #ccc', // Optional border for better visibility
+              marginBottom: '5px', // Add spacing between items
+            }}
           >
             {app.name}
           </div>
