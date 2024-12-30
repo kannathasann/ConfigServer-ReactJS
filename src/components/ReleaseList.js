@@ -17,6 +17,9 @@ const ReleaseList = ({ selectedConfig }) => {
           );
         })
         .catch((error) => console.error("Error fetching releases:", error));
+    } else {
+      setReleases([]); // Clear releases if no config is selected
+      setUpdatedReleases([]);
     }
   }, [selectedConfig]);
 
@@ -37,7 +40,15 @@ const ReleaseList = ({ selectedConfig }) => {
   };
 
   const handleUpdate = () => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to update the release configurations?"
+    );
+  
+    if (!isConfirmed) {
+      return; // If the user cancels, do nothing
+    }
     fetch(
+      
       `http://localhost:8081/updateConfig?configKey=${selectedConfig.configKey}`,
       {
         method: "PUT",
@@ -94,19 +105,21 @@ const ReleaseList = ({ selectedConfig }) => {
       ) : (
         <p>Select a Config</p>
       )}
-      <button
-        onClick={handleUpdate}
-        style={{
-          marginTop: "20px",
-          padding: "10px 20px",
-          backgroundColor: "blue",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        Update
-      </button>
+      {selectedConfig && (
+        <button
+          onClick={handleUpdate}
+          style={{
+            marginTop: "20px",
+            padding: "10px 20px",
+            backgroundColor: "blue",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Update
+        </button>
+      )}
     </div>
   );
 };
