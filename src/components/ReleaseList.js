@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const ReleaseList = ({ selectedConfig }) => {
+const ReleaseList = ({ selectedFeature, selectedConfig }) => {
   const [releases, setReleases] = useState([]);
   const [updatedReleases, setUpdatedReleases] = useState([]);
 
@@ -49,8 +49,8 @@ const ReleaseList = ({ selectedConfig }) => {
     }
     fetch(
       
-      `http://localhost:8081/updateConfig?configKey=${selectedConfig.configKey}`,
-      {
+      `http://localhost:8081/updateConfig?configKey=${selectedConfig.configKey}&featureId=${selectedFeature.id}`,
+      {       
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

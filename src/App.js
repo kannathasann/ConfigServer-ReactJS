@@ -31,7 +31,7 @@ const handleSetSelectedFeature = (feature) => {
           setSelectedFeature={handleSetSelectedFeature} // Use the updated handler
           setSelectedConfig={setSelectedConfig} />
         <ConfigList selectedFeature={selectedFeature} setSelectedConfig={setSelectedConfig} />
-        <ReleaseList selectedConfig={selectedConfig} />
+        <ReleaseList selectedFeature={selectedFeature} selectedConfig={selectedConfig} />
       </div>
     </div>
   );
