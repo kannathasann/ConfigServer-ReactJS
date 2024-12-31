@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import API_ENDPOINTS from '../property';
 
 const AppList = ({ setSelectedApp }) => {
   const [apps, setApps] = useState([]);
   const [selectedApp, setAppSelection] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:8081/getAllApps')
+    const url= API_ENDPOINTS.GET_ALL_APPS;
+    fetch(url)
       .then((response) => response.json())
       .then((data) => setApps(data))
       .catch((error) => console.error('Error fetching apps:', error));

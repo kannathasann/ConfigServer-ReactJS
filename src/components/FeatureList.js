@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import API_ENDPOINTS from '../property';
 
 const FeatureList = ({ selectedApp, selectedFeature, setSelectedFeature }) => {
   const [features, setFeatures] = useState([]);
 
   useEffect(() => {
     if (selectedApp) {
-      fetch(`http://localhost:8081/getAllFeaturesByApp/${selectedApp.id}`)
+      const url=API_ENDPOINTS.GET_ALL_FEATURES_BY_APP(selectedApp.id);
+      fetch(url)
         .then((response) => response.json())
         .then((data) => setFeatures(data))
         .catch((error) => console.error('Error fetching features:', error));

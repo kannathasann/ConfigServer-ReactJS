@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import API_ENDPOINTS from "../property";
 
 const ReleaseList = ({ selectedFeature, selectedConfig }) => {
   const [releases, setReleases] = useState([]);
@@ -6,9 +7,8 @@ const ReleaseList = ({ selectedFeature, selectedConfig }) => {
 
   useEffect(() => {
     if (selectedConfig) {
-      fetch(
-        `http://localhost:8081/getAllReleaseStrategyByConfig?name=${selectedConfig.configName}&configkey=${selectedConfig.configKey}`
-      )
+      const url =API_ENDPOINTS.GET_ALL_RELEASE_BY_CONFIG(selectedConfig.configName, selectedConfig.configKey);
+      fetch(url)
         .then((response) => response.json())
         .then((data) => {
           setReleases(data);
@@ -47,9 +47,8 @@ const ReleaseList = ({ selectedFeature, selectedConfig }) => {
     if (!isConfirmed) {
       return; // If the user cancels, do nothing
     }
-    fetch(
-      
-      `http://localhost:8081/updateConfig?configKey=${selectedConfig.configKey}&featureId=${selectedFeature.id}`,
+    const url = API_ENDPOINTS.UPDATE_CONFIG(selectedConfig.configKey,selectedFeature.id);
+    fetch(url,
       {       
         method: "PUT",
         headers: {

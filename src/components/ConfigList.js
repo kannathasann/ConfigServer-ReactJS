@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import API_ENDPOINTS from "../property";
 
 const ConfigList = ({ selectedFeature, setSelectedConfig }) => {
   const [configs, setConfigs] = useState([]); // List of current configs
@@ -11,7 +12,8 @@ const ConfigList = ({ selectedFeature, setSelectedConfig }) => {
 
   // Fetch predefined config names from the server
   useEffect(() => {
-    fetch("http://localhost:8081/config/predefinedNames")
+    const url = API_ENDPOINTS.GET_ALL_PREDEFINED_CONFIGS;
+    fetch(url)
       .then((response) => response.json())
       .then((data) => setPredefinedConfigNames(data))
       .catch((error) =>
@@ -23,7 +25,8 @@ const ConfigList = ({ selectedFeature, setSelectedConfig }) => {
   useEffect(() => {
     if (selectedFeature) {
       setShowForm(false); 
-      fetch(`http://localhost:8081/getAllConfigsByFeature/${selectedFeature.id}`)
+      const url = API_ENDPOINTS.GET_ALL_CONFIGS_BY_FEATURE(selectedFeature.id)
+      fetch(url)
         .then((response) => response.json())
         .then((data) => setConfigs(data))
         .catch((error) => console.error("Error fetching configs:", error));
@@ -64,8 +67,9 @@ const ConfigList = ({ selectedFeature, setSelectedConfig }) => {
       configKey: `${selectedFeature.name}Enabled${formData.configName}`,
       configValue: "",
     };
-
-    fetch(`http://localhost:8081/createConfig?featureId=${selectedFeature.id}`, {
+    
+    const url= API_ENDPOINTS.CREATE_CONFIG(selectedFeature.id);
+    fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
