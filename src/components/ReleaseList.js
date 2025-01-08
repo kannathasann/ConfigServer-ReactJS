@@ -7,7 +7,7 @@ const ReleaseList = ({ selectedFeature, selectedConfig }) => {
 
   useEffect(() => {
     if (selectedConfig) {
-      const url =API_ENDPOINTS.GET_ALL_RELEASE_BY_CONFIG(selectedConfig.configName, selectedConfig.configKey);
+      const url =API_ENDPOINTS.GET_ALL_RELEASE_BY_CONFIG(selectedConfig.configKey, selectedConfig.configQuery);
       fetch(url)
         .then((response) => response.json())
         .then((data) => {
@@ -99,7 +99,7 @@ const ReleaseList = ({ selectedFeature, selectedConfig }) => {
             </div>
           ))
         ) : (
-          <p>Loading releases...</p>
+          <p>no release found</p>
         )
       ) : (
         <p>Select a Config</p>
