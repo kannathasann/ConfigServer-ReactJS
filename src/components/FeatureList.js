@@ -1,24 +1,47 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import API_ENDPOINTS from '../property';
 
 const FeatureList = ({ selectedApp, selectedFeature, setSelectedFeature }) => {
   const [features, setFeatures] = useState([]);
   const [newFeatureName, setNewFeatureName] = useState('');
   const [isAdding, setIsAdding] = useState(false); // Track if the user is adding a feature
+  const [page, setPage] = useState(0); // Current page
+  const [size] = useState(8); // Page size
+  const [totalPages, setTotalPages] = useState(0); // Total pages
 
   useEffect(() => {
     if (selectedApp) {
-      const url = API_ENDPOINTS.GET_ALL_FEATURES_BY_APP(selectedApp.id);
+      const url = API_ENDPOINTS.GET_ALL_FEATURES_BY_APP(selectedApp.id, page, size);
       fetch(url)
         .then((response) => response.json())
-        .then((data) => setFeatures(data))
+        .then((data) => {
+          setFeatures(data.content || []); // Assuming API returns { content, totalPages }
+          setTotalPages(data.totalPages || 0);
+        })
         .catch((error) => console.error('Error fetching features:', error));
     }
-  }, [selectedApp]);
+  }, [selectedApp, page, size]);
 
   const handleClick = (feature) => {
     setSelectedFeature(feature);
   };
+  const handleDelete = async (featureId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this feature?');
+    if (!confirmDelete) return;
+    try {
+      const response = await fetch(API_ENDPOINTS.DELETE_FEATURE(featureId), {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete feature');
+      setFeatures((prevFeatures) => prevFeatures.filter((feature) => feature.id !== featureId));
+  
+    } catch (error) {
+      console.error('Error deleting features:', error);
+    }
+  };
+
 
   const handleAddNewFeature = () => {
     if (!newFeatureName.trim()) {
@@ -52,9 +75,12 @@ const FeatureList = ({ selectedApp, selectedFeature, setSelectedFeature }) => {
         return response.json();
       })
       .then((createdFeature) => {
+        // Go to the last page
+        setPage(totalPages-1); 
         setFeatures((prevFeatures) => [...prevFeatures, createdFeature]);
         setNewFeatureName(''); // Clear the input box after adding
         setIsAdding(false); // Exit add mode
+        
       })
       .catch((error) => console.error('Error adding feature:', error));
   };
@@ -62,6 +88,14 @@ const FeatureList = ({ selectedApp, selectedFeature, setSelectedFeature }) => {
   const handleCancel = () => {
     setNewFeatureName('');
     setIsAdding(false); // Exit add mode without saving
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages - 1) setPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (page > 0) setPage((prevPage) => prevPage - 1);
   };
 
   return (
@@ -73,8 +107,11 @@ const FeatureList = ({ selectedApp, selectedFeature, setSelectedFeature }) => {
             features.map((feature) => (
               <div
                 key={feature.id}
-                onClick={() => handleClick(feature)}
+               
                 style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                   cursor: 'pointer',
                   padding: '5px',
                   backgroundColor:
@@ -85,11 +122,57 @@ const FeatureList = ({ selectedApp, selectedFeature, setSelectedFeature }) => {
                   marginBottom: '5px',
                 }}
               >
-                {feature.name}
+                <span onClick={() => handleClick(feature)}>{feature.name}</span>
+                           <FontAwesomeIcon
+                             icon={faTrash}
+                             style={{
+                               color: 'red',
+                               cursor: 'pointer',
+                               marginLeft: '10px',
+                             }}
+                             onClick={() => handleDelete(feature.id)}
+                           />
               </div>
             ))
           ) : (
             <p>No features found</p>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 0 && (
+            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+              <button
+                onClick={handlePrevPage}
+                disabled={page === 0}
+                style={{
+                  padding: '5px 10px',
+                  cursor: page === 0 ? 'not-allowed' : 'pointer',
+                  backgroundColor: page === 0 ? '#ccc' : '#007bff',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                }}
+              >
+                Previous
+              </button>
+              <span>
+                Page {page + 1} of {totalPages}
+              </span>
+              <button
+                onClick={handleNextPage}
+                disabled={page === totalPages - 1}
+                style={{
+                  padding: '5px 10px',
+                  cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer',
+                  backgroundColor: page === totalPages - 1 ? '#ccc' : '#007bff',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                }}
+              >
+                Next
+              </button>
+            </div>
           )}
 
           {/* Add New Feature Section */}

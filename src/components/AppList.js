@@ -1,26 +1,56 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import API_ENDPOINTS from '../property';
 
 const AppList = ({ setSelectedApp }) => {
   const [apps, setApps] = useState([]);
   const [selectedApp, setAppSelection] = useState(null);
   const [newAppName, setNewAppName] = useState('');
-  const [isAdding, setIsAdding] = useState(false); // Track if user is in "add mode"
+  const [isAdding, setIsAdding] = useState(false);
+  const [page, setPage] = useState(0);
+  const [size] = useState(8);
+  const [appLength, setAppLength]=useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    const url = API_ENDPOINTS.GET_ALL_APPS;
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => setApps(data))
-      .catch((error) => console.error('Error fetching apps:', error));
-  }, []);
+    const fetchApps = async () => {
+      const url = API_ENDPOINTS.GET_ALL_APPS(page, size);
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Error fetching apps');
+        const data = await response.json();
+        setApps(data.content);
+        setAppLength(apps.length);
+        setTotalPages(data.totalPages);
+      } catch (error) {
+        console.error('Error fetching apps:', error);
+      }
+    };
+    fetchApps();
+  }, [appLength,page, size]);
 
   const handleClick = (app) => {
     setSelectedApp(app);
     setAppSelection(app);
   };
 
-  const handleAddNewApp = () => {
+  const handleDelete = async (appId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this app?');
+    if (!confirmDelete) return;
+    try {
+      const response = await fetch(API_ENDPOINTS.DELETE_APP(appId), {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete app');
+      setApps((prevApps) => prevApps.filter((app) => app.id !== appId));
+      setAppLength(apps.length);
+    } catch (error) {
+      console.error('Error deleting app:', error);
+    }
+  };
+
+  const handleAddNewApp = async () => {
     if (!newAppName.trim()) {
       alert('App name cannot be empty');
       return;
@@ -31,30 +61,41 @@ const AppList = ({ setSelectedApp }) => {
       desc: `${newAppName} app`,
     };
 
-    fetch(API_ENDPOINTS.CREATE_APP, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newApp),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to add app');
-        }
-        return response.json();
-      })
-      .then((createdApp) => {
-        setApps((prevApps) => [...prevApps, createdApp]);
-        setNewAppName(''); // Clear input
-        setIsAdding(false); // Exit "add mode"
-      })
-      .catch((error) => console.error('Error adding app:', error));
+    try {
+      const response = await fetch(API_ENDPOINTS.CREATE_APP, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newApp),
+      });
+      if (!response.ok) throw new Error('Failed to add app');
+      const createdApp = await response.json();
+      setPage(totalPages - 1); // Go to the last page
+      setApps((prevApps) => [...prevApps, createdApp]);
+      setAppLength(apps.length);
+      setNewAppName('');
+      setIsAdding(false);
+    } catch (error) {
+      console.error('Error adding app:', error);
+    }
   };
 
   const handleCancel = () => {
-    setNewAppName(''); // Clear input
-    setIsAdding(false); // Exit "add mode"
+    setNewAppName('');
+    setIsAdding(false);
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages - 1) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 0) {
+      setPage((prevPage) => prevPage - 1);
+    }
   };
 
   return (
@@ -64,21 +105,67 @@ const AppList = ({ setSelectedApp }) => {
         apps.map((app) => (
           <div
             key={app.id}
-            onClick={() => handleClick(app)}
             style={{
-              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
               padding: '5px',
               backgroundColor: selectedApp && selectedApp.id === app.id ? '#d3d3d3' : 'transparent',
               border: '1px solid #ccc',
               marginBottom: '5px',
+              cursor: 'pointer',
             }}
           >
-            {app.name}
+            <span onClick={() => handleClick(app)}>{app.name}</span>
+            <FontAwesomeIcon
+              icon={faTrash}
+              style={{
+                color: 'red',
+                cursor: 'pointer',
+                marginLeft: '10px',
+              }}
+              onClick={() => handleDelete(app.id)}
+            />
           </div>
         ))
       ) : (
         <p>Loading apps...</p>
       )}
+
+      {/* Pagination Controls */}
+      <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+        <button
+          onClick={handlePreviousPage}
+          disabled={page === 0}
+          style={{
+            padding: '5px 10px',
+            cursor: page === 0 ? 'not-allowed' : 'pointer',
+            backgroundColor: page === 0 ? '#ccc' : '#007bff',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+          }}
+        >
+          Previous
+        </button>
+        <span>
+          Page {page + 1} of {totalPages}
+        </span>
+        <button
+          onClick={handleNextPage}
+          disabled={page === totalPages - 1}
+          style={{
+            padding: '5px 10px',
+            cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer',
+            backgroundColor: page === totalPages - 1 ? '#ccc' : '#007bff',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+          }}
+        >
+          Next
+        </button>
+      </div>
 
       {/* Add New App Section */}
       <div style={{ marginTop: '20px' }}>
