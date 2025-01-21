@@ -13,16 +13,14 @@ const API_ENDPOINTS={
 
     GET_ALL_CONFIGS_BY_FEATURE: (featureId, page, size)=>
         `http://localhost:8081/getAllConfigsByFeature/${featureId}?page=${page}&size=${size}`,
-  
     CREATE_CONFIG: 'http://localhost:8081/createConfig',
     GET_ALL_RELEASE_BY_CONFIG:(configKey, configQuery)=>
      `http://localhost:8081/getAllReleaseByConfig?configkey=${configKey}&configQuery=${configQuery}`,
     UPDATE_CONFIG:(configKey,featureId)=>
         `http://localhost:8081/updateConfig?configKey=${configKey}&featureId=${featureId}`,
-    DELETE_CONFIG:(configId)=>  ` http://localhost:8081/deleteConfig/${configId}`
+    DELETE_CONFIG:(configId)=>  ` http://localhost:8081/deleteConfig/${configId}`,
 
-
-   
+    GET_ALL_APPS_BY_FEATURE:(featureName)=>`http://localhost:8081/getAllAppsByFeature?featureName=${featureName}`
 }
 
 export default API_ENDPOINTS
