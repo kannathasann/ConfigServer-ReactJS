@@ -72,9 +72,11 @@ const ConfigList = ({ selectedApp,selectedFeature,selectedConfig, setSelectedCon
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to add config");
-        }
-        return response.json();
+        return response.text().then((errorMessage) => {
+          throw new Error(errorMessage || "Failed to add config");
+        });
+      }
+      return response.json();
       })
       .then((createdConfig) => {
         // Reload last page to include new config
@@ -84,8 +86,12 @@ const ConfigList = ({ selectedApp,selectedFeature,selectedConfig, setSelectedCon
         setNewConfigQuery("");
         setIsAdding(false); // Exit add mode
       })
-      .catch((error) => console.error("Error adding config:", error));
-  };
+      .catch((error) =>
+        {
+          alert(`Error adding config: ${error.message}`);
+          console.error("Error adding config:", error);
+        } );
+      };
 
   const handleCancel = () => {
     setNewConfigName("");
